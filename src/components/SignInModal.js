@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function SignUpModal() {
 
-    const {modalState, toggleModals, signUp} = useContext(UserContext)
+    const {modalState, toggleModals, signIn} = useContext(UserContext)
 
     const navigate = useNavigate();
 
@@ -20,18 +20,10 @@ export default function SignUpModal() {
     const formRef = useRef();
 
     const handleForm = async e => {
-        e.preventDefault()
-        
-        if((inputs.current[1].value.length || inputs.current[2].value.length) < 6) {
-            setValidation("6 characters minimum")
-            return;
-        } else if(inputs.current[1].value !== inputs.current[2].value){
-            setValidation("Passwords do not match")
-            return;
-        }
+        e.preventDefault();
 
         try {
-            const cred = await signUp(
+            const cred = await signIn(
                 inputs.current[0].value,
                 inputs.current[1].value
             )
@@ -41,28 +33,20 @@ export default function SignUpModal() {
             toggleModals("close")
             navigate("/private/private-home")
             
-        } catch(err) {
-
-            if(err.code === "auth/invalid-email") {
-                setValidation("Email format invalid")
-            }
-
-            if(err.code === "auth/email-already-in-use") {
-                setValidation("Email already used")
-            }
-
+        } catch {
+            setValidation("email or/and password incorrect")
         }
-    }
+    };
 
     const closeModal = () => {
         setValidation("")
-        toggleModals("close")
+        toggleModals("close");
     }
 
 
   return (
     <>
-    {modalState.signUpModal && (
+    {modalState.signInModal && (
     <div className="position-fixed top-0 vw-100 vh-100">
         <div 
         onClick={closeModal}
@@ -87,18 +71,13 @@ export default function SignUpModal() {
                             onSubmit={handleForm}
                             className="sign-up-form">
                                 <div className="mb-3">
-                                    <label htmlFor="signUpEmail" className="form-label">Email adress</label>
+                                    <label htmlFor="signInEmail" className="form-label">Email adress</label>
                                     <input ref={addInputs} type="email" className="form-control" name="email" required id="signUpEmail" />
                                 </div>
 
                                 <div className="mb-3">
-                                    <label htmlFor="signUpPwd" className="form-label">Password</label>
+                                    <label htmlFor="signInPwd" className="form-label">Password</label>
                                     <input  ref={addInputs} type="password" className="form-control" name="pwd" required id="signUpPwd" />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="repeatPwd" className="form-label">Repeat password</label>
-                                    <input ref={addInputs} type="password" className="form-control" name="pwd" required id="repeatPwd "/>
                                     <p className="text-danger mt-1">{validation}</p>
                                 </div>
 
